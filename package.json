@@ -1,6 +1,6 @@
 {
   "name": "aragon-toolkit-examples",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Documented examples of the aragonCLI toolkit tool",
   "main": "index.js",
   "scripts": {
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/sembrestels/aragon-toolkit-examples#readme",
   "dependencies": {
-    "@aragon/test-helpers": "^2.1.0",
-    "@aragon/toolkit": "0.0.1",
+    "@aragon/connect-core": "^0.6.0",
+    "@aragon/toolkit": "0.0.7-beta.1",
     "ethereumjs-abi": "^0.6.8",
     "web3": "^1.2.5-rc.0"
   },

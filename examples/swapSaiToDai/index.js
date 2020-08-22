@@ -1,4 +1,4 @@
-const { encodeCallScript } = require('@aragon/test-helpers/evmScript')
+const { encodeCallScript } = require('@aragon/connect-core')
 const { encodeActCall } = require('@aragon/toolkit')
 
 const [daoAddress, votingAddress, agentAddress, amount] = process.argv.slice(2)
@@ -13,37 +13,42 @@ async function main() {
   const migrationContractAddress = '0xc73e0383F3Aff3215E6f04B0331D58CeCf0Ab849'
   const uint256Max = `0x${'f'.repeat(64)}` // 0xfffff...
 
-  const script1 = encodeCallScript([
-    {
-      to: saiTokenAddress,
-      calldata: await encodeActCall(newApproveSignature, [
-        migrationContractAddress,
-        uint256Max,
-      ]),
-    },
-  ])
+  try {
+    const script1 = await encodeCallScript([
+      {
+        to: saiTokenAddress,
+        data: await encodeActCall(newApproveSignature, [
+          migrationContractAddress,
+          uint256Max,
+        ]),
+      },
+    ])
 
-  const script2 = encodeCallScript([
-    {
-      to: migrationContractAddress,
-      calldata: await encodeActCall(swapSaiToDaiSignature, [amount]),
-    },
-  ])
+    const script2 = await encodeCallScript([
+      {
+        to: migrationContractAddress,
+        data: await encodeActCall(swapSaiToDaiSignature, [amount]),
+      },
+    ])
 
-  // Encode all actions into a single EVM script.
-  const script = encodeCallScript([
-    {
-      to: agentAddress,
-      calldata: await encodeActCall(forwardSignature, [script1]),
-    },
-    {
-      to: agentAddress,
-      calldata: await encodeActCall(forwardSignature, [script2]),
-    },
-  ])
-  console.log(
-    `npx dao exec ${daoAddress} ${votingAddress} newVote ${script} SwapSaiToDai --environment aragon:mainnet`
-  )
+    // Encode all actions into a single EVM script.
+
+    const script = await encodeCallScript([
+      {
+        to: agentAddress,
+        data: await encodeActCall(forwardSignature, [script1]),
+      },
+      {
+        to: agentAddress,
+        data: await encodeActCall(forwardSignature, [script2]),
+      },
+    ])
+    console.log(
+      `npx dao exec ${daoAddress} ${votingAddress} newVote ${script} SwapSaiToDai --environment aragon:mainnet`
+    )
+  } catch (e){
+    console.error(e)
+  }
 
   process.exit()
 }

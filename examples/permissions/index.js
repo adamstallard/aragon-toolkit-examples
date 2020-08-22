@@ -1,4 +1,4 @@
-const { encodeCallScript } = require('@aragon/test-helpers/evmScript')
+const { encodeCallScript } = require('@aragon/connect-core')
 const { encodeActCall } = require('@aragon/toolkit')
 const { keccak256 } = require('web3-utils')
 
@@ -29,16 +29,20 @@ async function main() {
     ),
   ])
 
-  const actions = calldatum.map(calldata => ({
+  const actions = calldatum.map(data => ({
     to: aclAddress,
-    calldata,
+    data,
   }))
 
   // Encode all actions into a single EVM script.
-  const script = encodeCallScript(actions)
-  console.log(
-    `npx dao exec ${daoAddress} ${votingAddress} newVote ${script} MintsAndBurns --environment aragon:${environment} `
-  )
+  try {
+    const script = await encodeCallScript(actions)
+    console.log(
+      `npx dao exec ${daoAddress} ${votingAddress} newVote ${script} MintsAndBurns --environment aragon:${environment} `
+    )
+  } catch (e){
+    console.error(e)
+  }  
 
   process.exit()
 }

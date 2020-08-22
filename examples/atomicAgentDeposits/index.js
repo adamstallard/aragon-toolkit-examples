@@ -1,4 +1,4 @@
-const { encodeCallScript } = require('@aragon/test-helpers/evmScript')
+const { encodeCallScript } = require('@aragon/connect-core')
 const { encodeActCall } = require('@aragon/toolkit')
 
 const {
@@ -21,7 +21,7 @@ async function main() {
         encodeCallScript([
           {
             to: tokenAddress,
-            calldata: await encodeActCall(approveSignature, [
+            data: await encodeActCall(approveSignature, [
               receiverAddress,
               amount,
             ]),
@@ -34,7 +34,7 @@ async function main() {
         encodeCallScript([
           {
             to: receiverAddress,
-            calldata: await encodeActCall(depositSignature, [
+            data: await encodeActCall(depositSignature, [
               tokenAddress,
               amount,
               receipt,
@@ -48,15 +48,19 @@ async function main() {
   const actions = await Promise.all(
     scripts.map(async script => ({
       to: agentAddress,
-      calldata: await encodeActCall(forwardSignature, [script]),
+      data: await encodeActCall(forwardSignature, [script]),
     }))
   )
 
   // Encode all actions into a single EVM script.
-  const script = encodeCallScript(actions)
-  console.log(
-    `npx dao exec ${daoAddress} ${votingAddress} newVote ${script} Payments --environment aragon:${environment} --use-frame`
-  )
+  try {
+    const script = encodeCallScript(actions)
+    console.log(
+      `npx dao exec ${daoAddress} ${votingAddress} newVote ${script} Payments --environment aragon:${environment} --use-frame`
+    )
+  } catch (e){
+    console.error(e)
+  }
 
   process.exit()
 }
